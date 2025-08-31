@@ -15,52 +15,48 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        .sidebar-nav {
-            padding: 9px 0;
-        }
+    .sidebar-nav {
+        padding: 9px 0;
+    }
 
-        .card {
-            background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            padding: 25px;
-            margin-bottom: 25px;
-            transition: transform 0.2s ease;
-        }
+    .card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        padding: 25px;
+        margin-bottom: 25px;
 
-        .card:hover {
-            transform: translateY(-3px);
-        }
+    }
 
-        .card h3 {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            text-align: center;
-        }
+    .card h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        text-align: center;
+    }
 
-        .row-cards {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
+    .row-cards {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
 
-        .col-card {
-            flex: 1;
-            min-width: 400px;
-        }
+    .col-card {
+        flex: 1;
+        min-width: 400px;
+    }
 
-        .total-card {
-            text-align: center;
-            font-size: 26px;
-            font-weight: bold;
-            color: #28a745;
-        }
+    .total-card {
+        text-align: center;
+        font-size: 26px;
+        font-weight: bold;
+        color: #28a745;
+    }
 
-        canvas {
-            width: 100% !important;
-            height: 320px !important;
-        }
+    canvas {
+        width: 100% !important;
+        height: 320px !important;
+    }
     </style>
 
     <?php require_once('auth.php'); ?>
@@ -92,45 +88,46 @@
     }
     if ($position == 'admin') {
     ?>
-        <div class="container-fluid">
-            <div class="row-fluid">
-                <div class="span2">
-                    <div class="well sidebar-nav">
-                        <ul class="nav nav-list">
-                            <li><a href="index.php"><i class="icon-dashboard icon-2x"></i> Dashboard </a></li>
-                            <li><a href="sales.php?id=cash&invoice=<?php echo $finalcode ?>"><i
-                                        class="icon-shopping-cart icon-2x"></i> Sales</a></li>
-                            <li><a href="products.php"><i class="icon-list-alt icon-2x"></i> Products</a></li>
-                            <li><a href="customer.php"><i class="icon-group icon-2x"></i> Customers</a></li>
-                            <li><a href="supplier.php"><i class="icon-group icon-2x"></i> Suppliers</a></li>
-                            <li><a href="salesreport.php?d1=0&d2=0"><i class="icon-bar-chart icon-2x"></i> Sales Report</a>
-                            </li>
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span2">
+                <div class="well sidebar-nav">
+                    <ul class="nav nav-list">
+                        <li><a href="index.php"><i class="icon-dashboard icon-2x"></i> Dashboard </a></li>
+                        <li><a href="sales.php?id=cash&invoice=<?php echo $finalcode ?>"><i
+                                    class="icon-shopping-cart icon-2x"></i> Sales</a></li>
+                        <li><a href="products.php"><i class="icon-list-alt icon-2x"></i> Products</a></li>
+<!--                        <li><a href="customer.php"><i class="icon-group icon-2x"></i> Customers</a></li>-->
+                        <li><a href="supplier.php"><i class="icon-group icon-2x"></i> Suppliers</a></li>
+                        <li><a href="salesreport.php?d1=0&d2=0"><i class="icon-bar-chart icon-2x"></i> Sales Report</a>
+                        </li>
 
-                            <li><a href="sales_inventory.php"><i class="icon-table icon-2x"></i> Product Inventory</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="span10">
-                    <div class="contentheader">
-                        <i class="icon-bar-chart"></i> Sales Visualization
-                    </div>
-                    <ul class="breadcrumb">
-                        <li class="active">Sales Visualization</li>
+                        <li><a href="sales_inventory.php"><i class="icon-table icon-2x"></i> Product Inventory</a></li>
                     </ul>
+                </div>
+            </div>
 
-                    <?php
+            <div class="span10">
+                <div class="contentheader">
+                    <i class="icon-bar-chart"></i> Sales Visualization
+                </div>
+                <ul class="breadcrumb">
+                    <li class="active">Sales Visualization</li>
+                </ul>
+
+                <?php
                     // DB connection
                     $pdo = new PDO("mysql:host=localhost;dbname=sales;charset=utf8", "root", "");
 
                     // DAILY SALES
-                    $stmt = $pdo->query("
-                        SELECT DATE(STR_TO_DATE(`date`, '%m/%d/%y')) as sdate,
-                               SUM(amount) as total_sales
-                        FROM sales_order
-                        GROUP BY sdate
-                        ORDER BY sdate
-                    ");
+                    $stmt = $pdo->prepare("
+    SELECT DATE(STR_TO_DATE(`date`, '%m/%d/%y')) as sdate,
+           SUM(amount) as total_sales
+    FROM sales_order
+    WHERE DATE(STR_TO_DATE(`date`, '%m/%d/%y')) = CURDATE()
+    GROUP BY sdate
+");
+                    $stmt->execute();
                     $labels_day = [];
                     $data_day = [];
                     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -160,76 +157,76 @@
                     $grand_total = $grand['total'] ?? 0;
                     ?>
 
-                    <div class="row-cards">
-                        <div class="col-card">
-                            <div class="card">
-                                <h3>📅 Daily Sales</h3>
-                                <canvas id="dailyChart"></canvas>
-                            </div>
-                        </div>
-                        <div class="col-card">
-                            <div class="card">
-                                <h3>🗓 Monthly Sales (Jan–Dec)</h3>
-                                <canvas id="monthlyChart"></canvas>
-                            </div>
+                <div class="row-cards">
+                    <div class="col-card">
+                        <div class="card">
+                            <h3>📅 Daily Sales</h3>
+                            <canvas id="dailyChart"></canvas>
                         </div>
                     </div>
-
-
+                    <div class="col-card">
+                        <div class="card">
+                            <h3>🗓 Monthly Sales (Jan–Dec)</h3>
+                            <canvas id="monthlyChart"></canvas>
+                        </div>
+                    </div>
                 </div>
+
+
             </div>
         </div>
+    </div>
 
-        <script>
-            // Daily Chart
-            new Chart(document.getElementById('dailyChart').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: <?= json_encode($labels_day) ?>,
-                    datasets: [{
-                        label: 'Daily Sales (₱)',
-                        data: <?= json_encode($data_day) ?>,
-                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+    <script>
+    // Daily Chart
+    new Chart(document.getElementById('dailyChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode($labels_day) ?>,
+            datasets: [{
+                label: 'Daily Sales (₱)',
+                data: <?= json_encode($data_day) ?>,
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
-            });
+            }
+        }
+    });
 
-            // Monthly Chart
-            new Chart(document.getElementById('monthlyChart').getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: <?= json_encode($month_labels) ?>,
-                    datasets: [{
-                        label: 'Monthly Sales (₱)',
-                        data: <?= json_encode($month_data) ?>,
-                        fill: true,
-                        backgroundColor: 'rgba(75, 192, 192, 0.25)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 3,
-                        tension: 0.4,
-                        pointBackgroundColor: 'rgba(75, 192, 192, 1)',
-                        pointRadius: 5
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+    // Monthly Chart
+    new Chart(document.getElementById('monthlyChart').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: <?= json_encode($month_labels) ?>,
+            datasets: [{
+                label: 'Monthly Sales (₱)',
+                data: <?= json_encode($month_data) ?>,
+                fill: true,
+                backgroundColor: 'rgba(75, 192, 192, 0.25)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 3,
+                tension: 0.4,
+                pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                pointRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
-            });
-        </script>
+            }
+        }
+    });
+    </script>
     <?php } ?>
 </body>
 <?php include('footer.php'); ?>

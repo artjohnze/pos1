@@ -71,7 +71,7 @@
 									class="icon-bar-chart icon-2x"></i> Accounts Receivable Report</a> </li>
 						<li><a rel="facebox" href="select_customer.php"><i class="icon-user icon-2x"></i> Customer
 								Ledger</a> </li>
-						<li><a href="products.php"><i class="icon-table icon-2x"></i> Products</a> </li>
+<!--						<li><a href="products.php"><i class="icon-table icon-2x"></i> Products</a> </li>-->
 						<li><a href="customer.php"><i class="icon-group icon-2x"></i> Customers</a> </li>
 						<li><a href="supplier.php"><i class="icon-group icon-2x"></i> Suppliers</a> </li>
 						<li><a href="purchaseslist.php"><i class="icon-inbox icon-2x"></i> Purchases</a></li>
